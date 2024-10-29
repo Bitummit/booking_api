@@ -38,6 +38,7 @@ func New(cfg *config.Config, log *slog.Logger, storage Storage) *HTTPServer{
 func (s *HTTPServer) Run(ctx context.Context, wg *sync.WaitGroup) error {
 	// register middllewares
 	// register endpoints
+	errCh := make(chan error, 1)
 	httpServer := &http.Server{
 		Addr: s.Cfg.Address,
 		Handler: s.Router,
@@ -45,14 +46,21 @@ func (s *HTTPServer) Run(ctx context.Context, wg *sync.WaitGroup) error {
 		WriteTimeout: s.Cfg.Timeout,
 		IdleTimeout: s.Cfg.IdleTimeout,
 	}
-
-	if err := httpServer.ListenAndServe(); err != nil {
-		return fmt.Errorf("server stopped %v", err)
+	go func() {
+		if err := httpServer.ListenAndServe(); err != nil {
+			errCh <- err
+			return
+		}
+	}()
+	select {
+	case err := <-errCh:
+		return fmt.Errorf("listenning and serving: %w", err)
+	case <-ctx.Done():
+		s.Log.Info("Shutting down")
+		httpServer.Shutdown(ctx)
+		s.Log.Info("Server stopped")
+		wg.Done()
 	}
-
-	<-ctx.Done()
-	httpServer.Shutdown(ctx)
-	s.Log.Info("Server stopped")
-	wg.Done()
 	return nil
+	
 }
