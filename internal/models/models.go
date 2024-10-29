@@ -23,6 +23,7 @@ type (
 		Name string 	`json:"name"`
 		Desc string 	`json:"desc"`
 		City_id int64 	`json:"city_id"`
+		Tags []int		`json:"tags"`
 	}
 
 	RoomCategory struct {
@@ -37,7 +38,6 @@ type (
 
 	Room struct {
 		Id int64 			`json:"id"`
-		Name string 		`json:"name"`
 		Number string 		`json:"number"`
 		Category_id int64 	`json:"category_id"`
 	}
