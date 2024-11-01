@@ -35,18 +35,22 @@ func New(ctx context.Context) (*Storage, error){
 }
 
 func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) {
-	stmt := CreateTagStmt
+	var id int64
+	checkStmt := CheckTagNameUniqueStmt
 	args := pgx.NamedArgs{
 		"name": tag.Name,
 	}
-	var id int64
 
-	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	row := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
+	if row == nil {
+		return 0, fmt.Errorf("database error: %w", ErrorExists)
+	}
+
+	createStmt := CreateTagStmt
+	err := s.DB.QueryRow(ctx, createStmt, args).Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
-		} else if errors.Is(err, pgx.ErrTooManyRows) {
-			return 0, fmt.Errorf("database error: %w", ErrorExists)
 		}
 		return 0, fmt.Errorf("database error: %w", err)
 	}
@@ -55,12 +59,18 @@ func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) 
 }
 
 func (s *Storage) CreateCity(ctx context.Context, city models.City) (int64, error) {
-	stmt := CreateTagStmt
+	var id int64
+	checkStmt := CheckCityNameUniqueStmt
 	args := pgx.NamedArgs{
 		"name": city.Name,
 	}
-	var id int64
 
+	row := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
+	if row == nil {
+		return 0, fmt.Errorf("database error: %w", ErrorExists)
+	}
+
+	stmt := CreateCityStmt
 	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

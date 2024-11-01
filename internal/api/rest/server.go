@@ -103,7 +103,7 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.HotelService.CreateTag(r.Context(), tag)
 	if err != nil {
-		s.Log.Error("%v", err)
+		s.Log.Error("%v", logger.Err(err))
 		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
 			w.WriteHeader(http.StatusBadRequest)
 		} else {
