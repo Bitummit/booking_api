@@ -103,6 +103,7 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.HotelService.CreateTag(r.Context(), tag)
 	if err != nil {
+		s.Log.Error("%v", err)
 		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
 			w.WriteHeader(http.StatusBadRequest)
 		} else {
@@ -114,9 +115,6 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 
 	s.Log.Info("New tag", slog.Int64("id", int64(id)))
 	res := CreateTagResponse{
-		Response: Response{
-			Status: "OK",
-		},
 		Id: id,
 	}
 	w.WriteHeader(http.StatusOK)
@@ -158,9 +156,6 @@ func (s *HTTPServer) CreateCityHandler(w http.ResponseWriter, r *http.Request) {
 
 	s.Log.Info("New city", slog.Int64("id", int64(id)))
 	res := CreateCityResponse{
-		Response: Response{
-			Status: "OK",
-		},
 		Id: id,
 	}
 	w.WriteHeader(http.StatusOK)
@@ -177,9 +172,6 @@ func (s *HTTPServer) ListTagsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	render.JSON(w, r, ListTagResponse{
-		Response: Response{
-			Status: "OK",
-		},
 		Tags: tags,
 	})
 }
@@ -194,9 +186,6 @@ func (s *HTTPServer) ListCityHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	render.JSON(w, r, ListCityResponse{
-		Response: Response{
-			Status: "OK",
-		},
 		Cities: cities,
 	})
 }

@@ -9,36 +9,29 @@ type (
 		Error string `json:"error,omitempty"`
 	}
 	CreateTagRequest struct{
-		Response Response `json:"response"`
 		Name string `json:"name"`
 	}
 
 	CreateTagResponse struct {
-		Response Response `json:"response"`
 		Id int64 `json:"id"`
 	}
 
 	CreateCityRequest struct{
-		Response Response `json:"response"`
 		Name string `json:"name"`
 	}
 
 	CreateCityResponse struct {
-		Response Response `json:"response"`
 		Id int64 `json:"id"`
 	}
 
 	ListCityResponse struct {
-		Response Response `json:"response"`
-		Cities []models.City
+		Cities []models.City `json:"cities"`
 	}
 
 	ListTagResponse struct {
-		Response Response `json:"response"`
-		Tags []models.Tag
+		Tags []models.Tag `json:"tags"`
 	}
 )
-
 
 func ErrorResponse(msg string) Response {
 	return Response{
