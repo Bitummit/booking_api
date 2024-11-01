@@ -33,13 +33,9 @@ func Run() {
 	wg.Add(1)
 	log.Info("Starting http server")
 	server := rest.New(cfg, log, storage)
-	server.Run(ctx, wg)
+	server.Start(ctx, wg)
 
 	<- ctx.Done()
 	wg.Wait()
 	storage.DB.Close()
-}
-
-func startServer() {
-
 }
