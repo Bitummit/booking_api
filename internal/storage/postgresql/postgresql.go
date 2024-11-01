@@ -12,13 +12,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var ErrorInsertion = errors.New("can not insert")
-var ErrorExists = errors.New("already exists")
-
 
 type Storage struct {
 	DB *pgxpool.Pool
 }
+
 
 func New(ctx context.Context) (*Storage, error){
 	dbURL := os.Getenv("DB_URL")
@@ -74,4 +72,48 @@ func (s *Storage) CreateCity(ctx context.Context, city models.City) (int64, erro
 	}
 
 	return id, nil
+}
+
+func (s *Storage) ListTags(ctx context.Context) ([]models.Tag, error) {
+	stmt := ListTagsStmt
+	var tags []models.Tag
+
+	rows, err := s.DB.Query(ctx, stmt)
+	if err != nil {
+		return nil, fmt.Errorf("fetching data: %w", err)
+	}
+
+	for rows.Next() {
+		var tag models.Tag
+		err = rows.Scan(&tag.Id, &tag.Name)
+		if err != nil {
+			return nil, fmt.Errorf("fetching data: %w", err)
+		}
+
+		tags = append(tags, tag)
+	}
+
+	return tags, nil
+}
+
+func (s *Storage) ListCities(ctx context.Context) ([]models.City, error) {
+	stmt := ListCitiesStmt
+	var cities []models.City
+
+	rows, err := s.DB.Query(ctx, stmt)
+	if err != nil {
+		return nil, fmt.Errorf("fetching data: %w", err)
+	}
+
+	for rows.Next() {
+		var city models.City
+		err = rows.Scan(&city.Id, &city.Name)
+		if err != nil {
+			return nil, fmt.Errorf("fetching data: %w", err)
+		}
+
+		cities = append(cities, city)
+	}
+
+	return cities, nil
 }

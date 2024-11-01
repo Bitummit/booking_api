@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/internal/service"
+	"github.com/Bitummit/booking_api/internal/storage/postgresql"
 	"github.com/Bitummit/booking_api/pkg/config"
 	"github.com/Bitummit/booking_api/pkg/logger"
 	"github.com/go-chi/chi/v5"
@@ -26,6 +28,9 @@ type (
 
 	HotelService interface {
 		CreateTag(ctx context.Context, tag models.Tag) (int64, error)
+		ListTags(ctx context.Context) ([]models.Tag, error)
+		CreateCity(ctx context.Context, city models.City) (int64, error)
+		ListCities(ctx context.Context) ([]models.City, error)
 	}
 )
 
@@ -42,7 +47,11 @@ func New(cfg *config.Config, log *slog.Logger, storage service.HotelStorage) *HT
 
 func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	// register middllewares
-	// register endpoints
+	s.Router.Post("/tag", s.CreateTagHandler)
+	s.Router.Get("/tag", s.ListTagsHandler)
+	s.Router.Post("/city", s.CreateCityHandler)
+	s.Router.Get("/city", s.ListCityHandler)
+
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{
 		Addr: s.Cfg.Address,
@@ -71,7 +80,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 }
 
 // Admin role
-func (s *HTTPServer) CreateTag(w http.ResponseWriter, r *http.Request) {
+func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	var req CreateTagRequest
 	err := render.DecodeJSON(r.Body, &req)
 	r.Body.Close()
@@ -94,6 +103,12 @@ func (s *HTTPServer) CreateTag(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.HotelService.CreateTag(r.Context(), tag)
 	if err != nil {
+		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		render.JSON(w, r, ErrorResponse(err.Error()))
 		return
 	}
 
@@ -108,6 +123,84 @@ func (s *HTTPServer) CreateTag(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, res)
 }
 
+// Admin role
+func (s *HTTPServer) CreateCityHandler(w http.ResponseWriter, r *http.Request) {
+	var req CreateCityRequest
+	err := render.DecodeJSON(r.Body, &req)
+	r.Body.Close()
+	if err != nil {
+		s.Log.Error("decoding request: %v", logger.Err(err))
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, ErrorResponse("bad request"))
+		return
+	}
+
+	if err := validator.New().Struct(req); err != nil {
+		err = err.(validator.ValidationErrors)
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, ErrorResponse(err.Error()))
+		return
+	}
+
+	city := models.City{
+		Name: req.Name,
+	}
+	id, err := s.HotelService.CreateCity(r.Context(), city)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		render.JSON(w, r, ErrorResponse(err.Error()))
+		return
+	}
+
+	s.Log.Info("New city", slog.Int64("id", int64(id)))
+	res := CreateCityResponse{
+		Response: Response{
+			Status: "OK",
+		},
+		Id: id,
+	}
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, res)
+}
+
+func (s *HTTPServer) ListTagsHandler(w http.ResponseWriter, r *http.Request) {
+	tags, err := s.HotelService.ListTags(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, ErrorResponse(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, ListTagResponse{
+		Response: Response{
+			Status: "OK",
+		},
+		Tags: tags,
+	})
+}
+
+func (s *HTTPServer) ListCityHandler(w http.ResponseWriter, r *http.Request) {
+	cities, err := s.HotelService.ListCities(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, ErrorResponse(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, ListCityResponse{
+		Response: Response{
+			Status: "OK",
+		},
+		Cities: cities,
+	})
+}
+
 // User:
 // 	List hotels (add filters)
 // 	Get hotel -> show list room_categories
@@ -115,9 +208,9 @@ func (s *HTTPServer) CreateTag(w http.ResponseWriter, r *http.Request) {
 
 // Admin:
 // 	Create hotel
-// 	Update user role (make manager)
-//	List, Create, delete tags
-// 	List, Create, delete city
+// 	Update user role (give role manager)
+//	List, Create(done), delete tags -> 01.11.2024
+// 	List, Create(done), delete city -> 01.11.2024
 
 // Manager:
 //	List own hotels, get hotel admin

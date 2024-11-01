@@ -1,5 +1,7 @@
 package rest
 
+import "github.com/Bitummit/booking_api/internal/models"
+
 type (
 
 	Response struct{
@@ -24,6 +26,16 @@ type (
 	CreateCityResponse struct {
 		Response Response `json:"response"`
 		Id int64 `json:"id"`
+	}
+
+	ListCityResponse struct {
+		Response Response `json:"response"`
+		Cities []models.City
+	}
+
+	ListTagResponse struct {
+		Response Response `json:"response"`
+		Tags []models.Tag
 	}
 )
 
