@@ -104,11 +104,16 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := s.HotelService.CreateTag(r.Context(), tag)
 	if err != nil {
 		s.Log.Error("%v", logger.Err(err))
-		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
+		if errors.Is(err, postgresql.ErrorInsertion){
 			w.WriteHeader(http.StatusBadRequest)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			render.JSON(w, r, ErrorResponse("insertion error"))
+			return
+		} else if errors.Is(err, postgresql.ErrorExists){
+			w.WriteHeader(http.StatusBadRequest)
+			render.JSON(w, r, ErrorResponse("tag aready exists"))
+			return
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		render.JSON(w, r, ErrorResponse(err.Error()))
 		return
 	}
@@ -145,11 +150,17 @@ func (s *HTTPServer) CreateCityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.HotelService.CreateCity(r.Context(), city)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrorInsertion) || errors.Is(err, postgresql.ErrorExists){
+		s.Log.Error("%v", logger.Err(err))
+		if errors.Is(err, postgresql.ErrorInsertion){
 			w.WriteHeader(http.StatusBadRequest)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			render.JSON(w, r, ErrorResponse("insertion error"))
+			return
+		} else if errors.Is(err, postgresql.ErrorExists){
+			w.WriteHeader(http.StatusBadRequest)
+			render.JSON(w, r, ErrorResponse("tag aready exists"))
+			return
 		}
+		w.WriteHeader(http.StatusInternalServerError)
 		render.JSON(w, r, ErrorResponse(err.Error()))
 		return
 	}
