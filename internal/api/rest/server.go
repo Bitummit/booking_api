@@ -8,12 +8,14 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/Bitummit/booking_api/internal/middlewares"
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/internal/service"
 	"github.com/Bitummit/booking_api/internal/storage/postgresql"
 	"github.com/Bitummit/booking_api/pkg/config"
 	"github.com/Bitummit/booking_api/pkg/logger"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 )
@@ -46,7 +48,13 @@ func New(cfg *config.Config, log *slog.Logger, storage service.HotelStorage) *HT
 }
 
 func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
-	// register middllewares
+	s.Router.Use(middleware.RequestID)
+	s.Router.Use(middleware.RealIP)
+	s.Router.Use(middleware.Logger)
+	s.Router.Use(middleware.Recoverer)
+	s.Router.Use(middleware.URLFormat)
+	s.Router.Use(middlewares.SetJSONContentType)
+	
 	s.Router.Post("/tag", s.CreateTagHandler)
 	s.Router.Get("/tag", s.ListTagsHandler)
 	s.Router.Post("/city", s.CreateCityHandler)
