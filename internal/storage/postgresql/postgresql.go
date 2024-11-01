@@ -127,3 +127,37 @@ func (s *Storage) ListCities(ctx context.Context) ([]models.City, error) {
 
 	return cities, nil
 }
+
+func (s *Storage) DeleteTag(ctx context.Context, id int64) error {
+	stmt := DeleteTagStmt
+	args := pgx.NamedArgs{
+		"id": id,
+	}
+
+	resp, err := s.DB.Exec(ctx, stmt, args)
+	if err != nil {
+		return fmt.Errorf("no such tag")
+	}
+	if resp.RowsAffected() == 0 {
+		return fmt.Errorf("deleting: %w", ErrorNotExists)
+	}
+
+	return nil
+}
+
+func (s *Storage) DeleteCity(ctx context.Context, id int64) error {
+	stmt := DeleteCityStmt
+	args := pgx.NamedArgs{
+		"id": id,
+	}
+
+	resp, err := s.DB.Exec(ctx, stmt, args)
+	if err != nil {
+		return fmt.Errorf("deleting err: %w", err)
+	}
+	if resp.RowsAffected() == 0 {
+		return fmt.Errorf("deleting: %w", ErrorNotExists)
+	}
+	
+	return nil
+}

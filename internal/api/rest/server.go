@@ -26,8 +26,10 @@ type (
 	HotelService interface {
 		CreateTag(ctx context.Context, tag models.Tag) (int64, error)
 		ListTags(ctx context.Context) ([]models.Tag, error)
+		DeleteTag(ctx context.Context, id int64) error
 		CreateCity(ctx context.Context, city models.City) (int64, error)
 		ListCities(ctx context.Context) ([]models.City, error)
+		DeleteCity(ctx context.Context, id int64) error
 	}
 )
 
@@ -52,8 +54,10 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	
 	s.Router.Post("/tag", s.CreateTagHandler)
 	s.Router.Get("/tag", s.ListTagsHandler)
+	s.Router.Delete("/tag/{id}", s.DeleteTagHandler)
 	s.Router.Post("/city", s.CreateCityHandler)
 	s.Router.Get("/city", s.ListCityHandler)
+	s.Router.Delete("/city/{id}", s.DeleteCityHandler)
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{

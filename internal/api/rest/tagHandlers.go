@@ -4,10 +4,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/internal/storage/postgresql"
 	"github.com/Bitummit/booking_api/pkg/logger"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 )
@@ -49,7 +51,7 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := s.HotelService.CreateTag(r.Context(), tag)
 	if err != nil {
-		s.Log.Error("%v", logger.Err(err))
+		s.Log.Error("creating tag ", logger.Err(err))
 		if errors.Is(err, postgresql.ErrorInsertion){
 			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, ErrorResponse("insertion error"))
@@ -70,4 +72,28 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	render.JSON(w, r, res)
+}
+
+func (s *HTTPServer) DeleteTagHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, ErrorResponse("id is not int"))
+		return
+	}
+
+	err = s.HotelService.DeleteTag(r.Context(), int64(id))
+	if err != nil {
+		s.Log.Error("deleting tag ", logger.Err(err))
+		if errors.Is(err, postgresql.ErrorNotExists) {
+			w.WriteHeader(http.StatusBadRequest)
+			render.JSON(w, r, ErrorResponse("tag not exists"))
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, ErrorResponse("internal error"))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, Response{Status: "OK"})
 }

@@ -15,9 +15,10 @@ type (
 	HotelStorage interface {
 		CreateTag(ctx context.Context, tag models.Tag) (int64, error)
 		ListTags(ctx context.Context) ([]models.Tag, error)
+		DeleteTag(ctx context.Context, id int64) error
 		CreateCity(ctx context.Context, city models.City) (int64, error)
 		ListCities(ctx context.Context) ([]models.City, error)
-
+		DeleteCity(ctx context.Context, id int64) error
 	}
 )
 
@@ -57,4 +58,20 @@ func (s *HotelService) ListCities(ctx context.Context) ([]models.City, error) {
 		return nil, fmt.Errorf("getting all cities: %w", err)
 	}
 	return cities, nil
+}
+
+func (s *HotelService) DeleteTag(ctx context.Context, id int64) error {
+	err := s.Storage.DeleteTag(ctx, id)
+	if err != nil {
+		return fmt.Errorf("deleting tag: %w", err)
+	}
+	return nil
+}
+
+func (s *HotelService) DeleteCity(ctx context.Context, id int64) error {
+	err := s.Storage.DeleteCity(ctx, id)
+	if err != nil {
+		return fmt.Errorf("deleting city: %w", err)
+	}
+	return nil
 }
