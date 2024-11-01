@@ -31,3 +31,11 @@ func (s *HotelService) CreateTag(ctx context.Context, tag models.Tag) (int64, er
 	}
 	return id, nil
 }
+
+func (s *HotelService) CreateCity(ctx context.Context, city models.City) (int64, error) {
+	id, err := s.Storage.CreateCity(ctx, city)
+	if err != nil {
+		return 0, fmt.Errorf("creating new city: %w", err)
+	}
+	return id, nil
+}

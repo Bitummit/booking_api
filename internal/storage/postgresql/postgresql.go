@@ -2,13 +2,19 @@ package postgresql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/Bitummit/booking_api/internal/models"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrorInsertion = errors.New("can not insert")
+var ErrorExists = errors.New("already exists")
+
 
 type Storage struct {
 	DB *pgxpool.Pool
@@ -31,9 +37,41 @@ func New(ctx context.Context) (*Storage, error){
 }
 
 func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) {
-	return 1, nil
+	stmt := CreateTagStmt
+	args := pgx.NamedArgs{
+		"name": tag.Name,
+	}
+	var id int64
+
+	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
+		} else if errors.Is(err, pgx.ErrTooManyRows) {
+			return 0, fmt.Errorf("database error: %w", ErrorExists)
+		}
+		return 0, fmt.Errorf("database error: %w", err)
+	}
+
+	return id, nil
 }
 
 func (s *Storage) CreateCity(ctx context.Context, city models.City) (int64, error) {
-	return 1, nil
+	stmt := CreateTagStmt
+	args := pgx.NamedArgs{
+		"name": city.Name,
+	}
+	var id int64
+
+	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
+		} else if errors.Is(err, pgx.ErrTooManyRows) {
+			return 0, fmt.Errorf("database error: %w", ErrorExists)
+		}
+		return 0, fmt.Errorf("database error: %w", err)
+	}
+
+	return id, nil
 }
