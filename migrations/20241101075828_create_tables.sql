@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS city(
 CREATE TABLE IF NOT EXISTS hotel(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    desc TEXT,
+    description TEXT,
     city_id INT REFERENCES city (id)
 );
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS room_category(
     name VARCHAR(255) NOT NULL,
     price DECIMAL NOT NULL,
     сapacity INT NOT NULL,
-    desc TEXT,
+    description TEXT,
     size INT NOT NULL,
     hotel_id INT REFERENCES hotel (id)
 );
@@ -58,14 +58,14 @@ CREATE TABLE IF NOT EXISTS booking(
     price DECIMAL NOT NULL,
     current_status status_enum,
     guests_count INT NOT NULL,
-    user_id INT REFERENCES user (id),
+    user_id INT REFERENCES my_user (id),
     room_id INT REFERENCES room (id)
 );
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE user;
+DROP TABLE my_user;
 DROP TABLE tag;
 DROP TABLE city;
 DROP TABLE hotel;
