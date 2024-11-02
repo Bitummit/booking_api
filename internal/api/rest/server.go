@@ -51,13 +51,22 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.URLFormat)
 	s.Router.Use(middlewares.SetJSONContentType)
+
+	s.Router.Route("/admin", func(r chi.Router) {
+		r.Use(middlewares.IsAdmin)
+
+		r.Route("/tag", func(r chi.Router) {
+			r.Post("/", s.CreateTagHandler)
+			r.Get("/", s.ListTagsHandler)
+			r.Delete("/{id}", s.DeleteTagHandler)
+		})
+		r.Route("/city", func(r chi.Router) {
+			r.Post("/", s.CreateCityHandler)
+			r.Get("/", s.ListCityHandler)
+			r.Delete("/{id}", s.DeleteCityHandler)
+		})
+	})
 	
-	s.Router.Post("/tag", s.CreateTagHandler)
-	s.Router.Get("/tag", s.ListTagsHandler)
-	s.Router.Delete("/tag/{id}", s.DeleteTagHandler)
-	s.Router.Post("/city", s.CreateCityHandler)
-	s.Router.Get("/city", s.ListCityHandler)
-	s.Router.Delete("/city/{id}", s.DeleteCityHandler)
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{
@@ -93,8 +102,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 // 	Create booking (auth)
 
 // Admin:
-// 	Create hotel
-// 	Update user role (give role manager)
+// 	Update user role (give role manager) (auth_service)
 //	List, Create(done), delete tags -> 01.11.2024
 // 	List, Create(done), delete city -> 01.11.2024
 
@@ -103,4 +111,4 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 //	Create, update, delete categories
 //	Create, delete room
 // 	Update hotel
-//	
+//	Create hotel

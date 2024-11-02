@@ -67,7 +67,7 @@ func (s *HTTPServer) CreateTagHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Log.Info("New tag", slog.Int64("id", int64(id)))
-	res := CreateTagResponse{
+	res := CreationResponse{
 		Id: id,
 	}
 	w.WriteHeader(http.StatusOK)

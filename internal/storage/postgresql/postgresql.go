@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Bitummit/booking_api/internal/models"
@@ -41,13 +42,13 @@ func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) 
 		"name": tag.Name,
 	}
 
-	row := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
-	if row == nil {
+	err := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
+	if err == nil {
 		return 0, fmt.Errorf("database error: %w", ErrorExists)
 	}
 
 	createStmt := CreateTagStmt
-	err := s.DB.QueryRow(ctx, createStmt, args).Scan(&id)
+	err = s.DB.QueryRow(ctx, createStmt, args).Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
@@ -65,13 +66,13 @@ func (s *Storage) CreateCity(ctx context.Context, city models.City) (int64, erro
 		"name": city.Name,
 	}
 
-	row := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
-	if row == nil {
+	err := s.DB.QueryRow(ctx, checkStmt, args).Scan(&id)
+	if err == nil {
 		return 0, fmt.Errorf("database error: %w", ErrorExists)
 	}
 
 	stmt := CreateCityStmt
-	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	err = s.DB.QueryRow(ctx, stmt, args).Scan(&id)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
@@ -160,4 +161,52 @@ func (s *Storage) DeleteCity(ctx context.Context, id int64) error {
 	}
 	
 	return nil
+}
+
+func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, tags []models.Tag) (int64, error) {
+	var id int64
+	stmt := CheckHotelNameUniqueStmt
+	args := pgx.NamedArgs{
+		"name": hotel.Name,
+	}
+	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("creating hotel: %w", ErrorExists)
+	}
+
+	stmt = CreateHotelStmt
+	args = pgx.NamedArgs{
+		"name": hotel.Name,
+		"desc": hotel.Desc,
+		"city_id": hotel.CityId,
+	}
+
+	err = s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
+		}
+		return 0, fmt.Errorf("database error: %w", err)
+	}
+	
+	// create hotel_tags
+	var tags_id []string
+	for _, tag := range tags{
+		tags_id = append(tags_id, string(tag.Id))
+	}
+	stmt = CreateTagHotelStmt
+	args = pgx.NamedArgs{
+		"tags_array": strings.Join(tags_id, ", "),
+		"hotel_id": id,
+	}
+	resp, err := s.DB.Exec(ctx, stmt, args)
+	if err != nil {
+		return 0, fmt.Errorf("isnerting hotel_tag: %w", err)
+	}
+
+	if resp.RowsAffected() == 0 {
+		return 0, fmt.Errorf("deleting: %w", ErrorNotExists)
+	}
+
+	return id, nil
 }

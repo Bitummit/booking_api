@@ -67,7 +67,7 @@ func (s *HTTPServer) CreateCityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.Log.Info("New city", slog.Int64("id", int64(id)))
-	res := CreateCityResponse{
+	res := CreationResponse{
 		Id: id,
 	}
 	w.WriteHeader(http.StatusOK)

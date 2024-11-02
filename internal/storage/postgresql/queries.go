@@ -10,4 +10,8 @@ const (
 	CheckCityNameUniqueStmt = "SELECT id FROM city WHERE name=@name;"
 	ListCitiesStmt = "SELECT id, name from city;"
 	DeleteCityStmt = "DELETE FROM city WHERE id=@id"
+
+	CreateHotelStmt = "INSERT INTO hotel(name, description, city_id) VALUES(@name, @desc, @city_id) RETURNING id;"
+	CreateTagHotelStmt = "INSERT INTO tag_hotel(hotel_id, tag_id) VALUES(@hotel_id, unnest(array[@tags_array]));"
+	CheckHotelNameUniqueStmt = "SELECT id FROM hotel WHERE name=@name"
 )

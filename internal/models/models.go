@@ -22,8 +22,7 @@ type (
 		Id int64 		`json:"id"`
 		Name string 	`json:"name"`
 		Desc string 	`json:"desc"`
-		City_id int64 	`json:"city_id"`
-		Tags []int		`json:"tags"`
+		CityId int64 	`json:"city_id"`
 	}
 
 	RoomCategory struct {
@@ -33,13 +32,13 @@ type (
 		Capacity int64 	`json:"capacity"`
 		Desc string 	`json:"desc"`
 		Size int64 		`json:"size"`
-		Hotel_id int64 	`json:"hotel_id"`
+		HotelId int64 	`json:"hotel_id"`
 	}
 
 	Room struct {
 		Id int64 			`json:"id"`
 		Number string 		`json:"number"`
-		Category_id int64 	`json:"category_id"`
+		CategoryId int64 	`json:"category_id"`
 	}
 
 	Booking struct {
@@ -49,7 +48,13 @@ type (
 		Price float64 		`json:"price"`
 		Status string 		`json:"status"`
 		GuestsCount int64 	`json:"guests_count"`
-		User_id int64 		`json:"user_id"`
-		Room_id int64 		`json:"room_id"`
+		UserId int64 		`json:"user_id"`
+		RoomId int64 		`json:"room_id"`
+	}
+
+	HotelTag struct {
+		Id int64 			`json:"id"`
+		CityId string 		`json:"city_id"`
+		Tagid int64 		`json:"tag_id"`
 	}
 )
