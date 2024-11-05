@@ -67,7 +67,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 			r.Delete("/{id}", s.DeleteCityHandler)
 		})
 	})
-	
+	s.Router.Post("/hotel", s.CreateHotelHandler)
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{

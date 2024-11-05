@@ -19,8 +19,7 @@ type (
 		CreateCity(ctx context.Context, city models.City) (int64, error)
 		ListCities(ctx context.Context) ([]models.City, error)
 		DeleteCity(ctx context.Context, id int64) error
-		CreateHotel(ctx context.Context, hotel models.Hotel, tags []models.Tag) (int64, error)
-		getCity(ctx context.Context, name string) (models.City, error)
+		CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error)
 	}
 )
 
@@ -80,16 +79,16 @@ func (s *HotelService) DeleteCity(ctx context.Context, id int64) error {
 
 func (s *HotelService) CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error) {
 	// get city obj
-	city, err := s.Storage.getCity(ctx, cityName)
-	if err != nil {
-		return 0, fmt.Errorf("creating hotel: %w", err)
-	}
+	// city, err := s.Storage.getCity(ctx, cityName)
+	// if err != nil {
+	// 	return 0, fmt.Errorf("creating hotel: %w", err)
+	// }
 	// get tag objects
 	//create city
-	hotel.CityId = city.Id
-	hotelID, err := s.Storage.CreateHotel(ctx, hotel, tags)
+	// hotel.CityId = city.Id
+	hotelID, err := s.Storage.CreateHotel(ctx, hotel, cityName, tags)
 	if err != nil {
-		return id, fmt.Errorf("creating hotel: %w", err)
+		return hotelID, fmt.Errorf("creating hotel: %w", err)
 	}
-	return id, nil
+	return hotelID, nil
 }

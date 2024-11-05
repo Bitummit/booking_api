@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/lib/pq"
 )
 
 
@@ -163,72 +163,89 @@ func (s *Storage) DeleteCity(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, tags []models.Tag) (int64, error) {
+func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tagNames []string) (int64, error) {
 	var id int64
-	stmt := CheckHotelNameUniqueStmt
+	// dont work!!!!!
+	// stmt := CheckHotelNameUniqueStmt
+	// args := pgx.NamedArgs{
+	// 	"name": hotel.Name,
+	// }
+	// err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	// if err != nil {
+	// 	return 0, fmt.Errorf("database error: %w", ErrorExists)
+	// }
+
+	stmt := CreateHotelStmt
 	args := pgx.NamedArgs{
 		"name": hotel.Name,
+		"desc": hotel.Desc,
+		"city_name": cityName,
 	}
 	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("creating hotel: %w", ErrorExists)
-	}
-
-	stmt = CreateHotelStmt
-	args = pgx.NamedArgs{
-		"name": hotel.Name,
-		"desc": hotel.Desc,
-		"city_id": hotel.CityId,
-	}
-
-	err = s.DB.QueryRow(ctx, stmt, args).Scan(&id)
-	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return 0, fmt.Errorf("database error: %w", ErrorInsertion)
+			return 0, fmt.Errorf("inserting error: %w", ErrorInsertion)
 		}
-		return 0, fmt.Errorf("database error: %w", err)
+		return 0, fmt.Errorf("database internal error: %w", err)
+	}
+
+	tagsID, err := s.GetTagsID(ctx, tagNames)
+	if err != nil {
+		return 0, fmt.Errorf("getting tag ids: %w", err)
+	}
+	// create hotel_tags
+	for _,tagID := range tagsID {
+		err = s.CreateTagHotel(ctx, id, tagID)
+		if err != nil {
+			return 0, fmt.Errorf("%w", err)
+		}
 	}
 	
-	// create hotel_tags
-	var tags_id []string
-	for _, tag := range tags{
-		tags_id = append(tags_id, string(tag.Id))
-	}
-	stmt = CreateTagHotelStmt
-	args = pgx.NamedArgs{
-		"tags_array": strings.Join(tags_id, ", "),
-		"hotel_id": id,
-	}
-	resp, err := s.DB.Exec(ctx, stmt, args)
-	if err != nil {
-		return 0, fmt.Errorf("isnerting hotel_tag: %w", err)
-	}
-
-	if resp.RowsAffected() == 0 {
-		return 0, fmt.Errorf("deleting: %w", ErrorNotExists)
-	}
-
 	return id, nil
 }
 
-
-func (s *Storage) getCity(ctx context.Context, name string) (models.City, error) {
-	var id int64
-	var city models.City
-	stmt := CheckCityNameUniqueStmt
-	agrs := pgx.NamedArgs{
-		"name": name,
+func (s *Storage) GetTagsID(ctx context.Context, tags []string) ([]int64, error) {
+	var tagsID []int64
+	stmt := GetMultipleTagsStmt
+	args := pgx.NamedArgs{
+		"tag_array": pq.Array(tags),
 	}
 	
-	err := s.DB.QueryRow(ctx, stmt, agrs).Scan(&id)
+	rows, err := s.DB.Query(ctx, stmt, args)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return city, fmt.Errorf("database error: %w", ErrorNotExists)
+			return nil, fmt.Errorf("query error: %w", ErrorNotExists)
 		}
-		return city, fmt.Errorf("database error: %w", err)
+		return nil, fmt.Errorf("database internal error: %w", err)
+	}
+	for rows.Next() {
+		var tagID int64
+		err := rows.Scan(&tagID)
+		if err != nil {
+			return nil, fmt.Errorf("database error: %w", err)
+		}
+		tagsID = append(tagsID, tagID)
+	}
+	if len(tagsID) == 0 {
+		return nil, fmt.Errorf("tag not exist:%w", ErrorTagNotExists)
+	}
+	return tagsID, nil
+}
+
+func (s *Storage) CreateTagHotel(ctx context.Context, hotelID int64, tagID int64) error {
+	stmt := CreateTagHotelStmt
+	args := pgx.NamedArgs{
+		"tag_id": tagID,
+		"hotel_id": hotelID,
+	}
+	resp, err := s.DB.Exec(ctx, stmt, args)
+	if err != nil {
+		return fmt.Errorf("isnerting hotel_tag: %w", err)
 	}
 
-	city.Id = id
-	city.Name = name
-	return city, nil
+	if resp.RowsAffected() == 0 {
+		return fmt.Errorf("not inserted: %w", ErrorInsertion)
+	}
+
+	return nil
 }
