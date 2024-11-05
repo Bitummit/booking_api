@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/Bitummit/booking_api/internal/models"
-	"github.com/Bitummit/booking_api/pkg/logger"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -166,24 +165,24 @@ func (s *Storage) DeleteCity(ctx context.Context, id int64) error {
 
 func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tagNames []string) (int64, error) {
 	var id int64
-	// check city
-	// dont work!!!!!
-	// stmt := CheckHotelNameUniqueStmt
-	// args := pgx.NamedArgs{
-	// 	"name": hotel.Name,
-	// }
-	// err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
-	// if err != nil {
-	// 	return 0, fmt.Errorf("database error: %w", ErrorExists)
-	// }
+	rollback := false
+	
+	stmt := CheckHotelNameUniqueStmt // check if already exists
+	args := pgx.NamedArgs{
+		"name": hotel.Name,
+	}
+	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	if err == nil {
+		return 0, fmt.Errorf("database error: %w", ErrorExists)
+	}
 
 	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{}) // init transaction
 	if err != nil {
 		return 0, fmt.Errorf("database internal error: %w", err)
 	}
 	defer func() {
-        if err != nil {
-			slog.Info("123")
+        if rollback || err != nil{
+			slog.Info("rollback")
             tx.Rollback(ctx)
         } else {
 			slog.Info("commit")
@@ -191,29 +190,33 @@ func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName 
         }
     }()
 
-	stmt := CreateHotelStmt // creating hotel
-	args := pgx.NamedArgs{
+	stmt = CreateHotelStmt // creating hotel
+	args = pgx.NamedArgs{
 		"name": hotel.Name,
 		"desc": hotel.Desc,
 		"city_name": cityName,
 	}
 	err = tx.QueryRow(ctx, stmt, args).Scan(&id)
 	if err != nil {
+		// check if not city
+		rollback = true
 		return 0, fmt.Errorf("database internal error: %w", err)
 	}
 
 	for _, tag := range tagNames {
 		resp, err := tx.Exec(ctx, GetTagByName, pgx.NamedArgs{"name": tag})
 		if err != nil {
+			rollback = true
 			return 0, fmt.Errorf("database internal error: %w", err)
 		}
 		if resp.RowsAffected() == 0 {
-			err = ErrorTagNotExists
-			return 0, fmt.Errorf("database internal error: %w", ErrorTagNotExists)
+			rollback = true
+			return 0, fmt.Errorf("request error: %w", ErrorTagNotExists)
 		}
 
 		err = s.CreateTagHotel(ctx, tag, id, tx)
 		if err != nil {
+			rollback = true
 			return 0, fmt.Errorf("%w", err)
 		}
 	}
@@ -228,7 +231,6 @@ func (s *Storage) CreateTagHotel(ctx context.Context, tagName string, hotelID in
 	}
 	_, err := tx.Exec(ctx, CreateTagHotelStmt, args)
 	if err != nil {
-		slog.Error("", logger.Err(err))
 		return fmt.Errorf("creating ref hotel_id and tag_id: %w", ErrorInsertion)
 	}
 	return nil

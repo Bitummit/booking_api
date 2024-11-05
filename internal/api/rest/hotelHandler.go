@@ -39,13 +39,16 @@ func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) 
 	hotelID, err := s.HotelService.CreateHotel(r.Context(), hotel, req.City, req.Tags)
 	if err != nil {
 		s.Log.Error("hotel:", logger.Err(err))
+		w.WriteHeader(http.StatusBadRequest)
 		if errors.Is(err, postgresql.ErrorTagNotExists) {
-			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, ErrorResponse("no such tag"))
 			return
 		}
+		if errors.Is(err, postgresql.ErrorExists) {
+			render.JSON(w, r, ErrorResponse("hotel with this name exists!"))
+			return
+		}
 		if errors.Is(err, postgresql.ErrorNotExists) || errors.Is(err, postgresql.ErrorInsertion){
-			w.WriteHeader(http.StatusBadRequest)
 			render.JSON(w, r, ErrorResponse("bad request"))
 			return
 		}

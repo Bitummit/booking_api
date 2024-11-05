@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
--- CREATE TYPE  status_enum AS ENUM ('created', 'submitted', 'closed');
+CREATE TYPE  status_enum AS ENUM ('created', 'submitted', 'closed');
 
 CREATE TABLE IF NOT EXISTS my_user(
     id SERIAL PRIMARY KEY,
