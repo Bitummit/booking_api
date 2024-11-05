@@ -61,7 +61,7 @@ func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) 
 
 func (s *Storage) CreateCity(ctx context.Context, city models.City) (int64, error) {
 	var id int64
-	checkStmt := CheckCityNameUniqueStmt
+	checkStmt := GetCityByName
 	args := pgx.NamedArgs{
 		"name": city.Name,
 	}
@@ -167,13 +167,21 @@ func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName 
 	var id int64
 	rollback := false
 	
-	stmt := CheckHotelNameUniqueStmt // check if already exists
+	stmt := CheckHotelNameUniqueStmt // check if hotel already exists
 	args := pgx.NamedArgs{
 		"name": hotel.Name,
 	}
 	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
 	if err == nil {
 		return 0, fmt.Errorf("database error: %w", ErrorExists)
+	}
+
+	resp, err := s.DB.Exec(ctx, GetCityByName, pgx.NamedArgs{"name": cityName}) // check if city exists
+	if err != nil {
+		return 0, fmt.Errorf("database internal error: %w", err)
+	}
+	if resp.RowsAffected() == 0 {
+		return 0, fmt.Errorf("request error: %w", ErrorCityNotExists)
 	}
 
 	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{}) // init transaction

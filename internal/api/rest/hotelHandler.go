@@ -44,6 +44,10 @@ func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) 
 			render.JSON(w, r, ErrorResponse("no such tag"))
 			return
 		}
+		if errors.Is(err, postgresql.ErrorCityNotExists) {
+			render.JSON(w, r, ErrorResponse("no such city"))
+			return
+		}
 		if errors.Is(err, postgresql.ErrorExists) {
 			render.JSON(w, r, ErrorResponse("hotel with this name exists!"))
 			return
