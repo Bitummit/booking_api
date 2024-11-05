@@ -210,3 +210,25 @@ func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, tags []mo
 
 	return id, nil
 }
+
+
+func (s *Storage) getCity(ctx context.Context, name string) (models.City, error) {
+	var id int64
+	var city models.City
+	stmt := CheckCityNameUniqueStmt
+	agrs := pgx.NamedArgs{
+		"name": name,
+	}
+	
+	err := s.DB.QueryRow(ctx, stmt, agrs).Scan(&id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return city, fmt.Errorf("database error: %w", ErrorNotExists)
+		}
+		return city, fmt.Errorf("database error: %w", err)
+	}
+
+	city.Id = id
+	city.Name = name
+	return city, nil
+}

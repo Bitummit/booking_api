@@ -30,6 +30,7 @@ type (
 		CreateCity(ctx context.Context, city models.City) (int64, error)
 		ListCities(ctx context.Context) ([]models.City, error)
 		DeleteCity(ctx context.Context, id int64) error
+		CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error)
 	}
 )
 
