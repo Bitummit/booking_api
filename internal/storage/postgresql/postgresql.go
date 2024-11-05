@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
 	"github.com/Bitummit/booking_api/internal/models"
+	"github.com/Bitummit/booking_api/pkg/logger"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/lib/pq"
 )
 
 
@@ -37,7 +38,7 @@ func New(ctx context.Context) (*Storage, error){
 
 func (s *Storage) CreateTag(ctx context.Context, tag models.Tag) (int64, error) {
 	var id int64
-	checkStmt := CheckTagNameUniqueStmt
+	checkStmt := GetTagByName
 	args := pgx.NamedArgs{
 		"name": tag.Name,
 	}
@@ -165,6 +166,7 @@ func (s *Storage) DeleteCity(ctx context.Context, id int64) error {
 
 func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tagNames []string) (int64, error) {
 	var id int64
+	// check city
 	// dont work!!!!!
 	// stmt := CheckHotelNameUniqueStmt
 	// args := pgx.NamedArgs{
@@ -175,77 +177,60 @@ func (s *Storage) CreateHotel(ctx context.Context, hotel models.Hotel, cityName 
 	// 	return 0, fmt.Errorf("database error: %w", ErrorExists)
 	// }
 
-	stmt := CreateHotelStmt
+	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{}) // init transaction
+	if err != nil {
+		return 0, fmt.Errorf("database internal error: %w", err)
+	}
+	defer func() {
+        if err != nil {
+			slog.Info("123")
+            tx.Rollback(ctx)
+        } else {
+			slog.Info("commit")
+            tx.Commit(ctx)
+        }
+    }()
+
+	stmt := CreateHotelStmt // creating hotel
 	args := pgx.NamedArgs{
 		"name": hotel.Name,
 		"desc": hotel.Desc,
 		"city_name": cityName,
 	}
-	err := s.DB.QueryRow(ctx, stmt, args).Scan(&id)
+	err = tx.QueryRow(ctx, stmt, args).Scan(&id)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return 0, fmt.Errorf("inserting error: %w", ErrorInsertion)
-		}
 		return 0, fmt.Errorf("database internal error: %w", err)
 	}
 
-	tagsID, err := s.GetTagsID(ctx, tagNames)
-	if err != nil {
-		return 0, fmt.Errorf("getting tag ids: %w", err)
-	}
-	// create hotel_tags
-	for _,tagID := range tagsID {
-		err = s.CreateTagHotel(ctx, id, tagID)
+	for _, tag := range tagNames {
+		resp, err := tx.Exec(ctx, GetTagByName, pgx.NamedArgs{"name": tag})
+		if err != nil {
+			return 0, fmt.Errorf("database internal error: %w", err)
+		}
+		if resp.RowsAffected() == 0 {
+			err = ErrorTagNotExists
+			return 0, fmt.Errorf("database internal error: %w", ErrorTagNotExists)
+		}
+
+		err = s.CreateTagHotel(ctx, tag, id, tx)
 		if err != nil {
 			return 0, fmt.Errorf("%w", err)
 		}
 	}
-	
+
 	return id, nil
 }
 
-func (s *Storage) GetTagsID(ctx context.Context, tags []string) ([]int64, error) {
-	var tagsID []int64
-	stmt := GetMultipleTagsStmt
+func (s *Storage) CreateTagHotel(ctx context.Context, tagName string, hotelID int64, tx pgx.Tx) error {
 	args := pgx.NamedArgs{
-		"tag_array": pq.Array(tags),
-	}
-	
-	rows, err := s.DB.Query(ctx, stmt, args)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("query error: %w", ErrorNotExists)
-		}
-		return nil, fmt.Errorf("database internal error: %w", err)
-	}
-	for rows.Next() {
-		var tagID int64
-		err := rows.Scan(&tagID)
-		if err != nil {
-			return nil, fmt.Errorf("database error: %w", err)
-		}
-		tagsID = append(tagsID, tagID)
-	}
-	if len(tagsID) == 0 {
-		return nil, fmt.Errorf("tag not exist:%w", ErrorTagNotExists)
-	}
-	return tagsID, nil
-}
-
-func (s *Storage) CreateTagHotel(ctx context.Context, hotelID int64, tagID int64) error {
-	stmt := CreateTagHotelStmt
-	args := pgx.NamedArgs{
-		"tag_id": tagID,
 		"hotel_id": hotelID,
+		"tag_name": tagName,
 	}
-	resp, err := s.DB.Exec(ctx, stmt, args)
+	_, err := tx.Exec(ctx, CreateTagHotelStmt, args)
 	if err != nil {
-		return fmt.Errorf("isnerting hotel_tag: %w", err)
+		slog.Error("", logger.Err(err))
+		return fmt.Errorf("creating ref hotel_id and tag_id: %w", ErrorInsertion)
 	}
-
-	if resp.RowsAffected() == 0 {
-		return fmt.Errorf("not inserted: %w", ErrorInsertion)
-	}
-
 	return nil
 }
+

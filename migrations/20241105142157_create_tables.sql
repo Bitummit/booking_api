@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TYPE  status_enum AS ENUM ('created', 'submitted', 'closed');
+-- CREATE TYPE  status_enum AS ENUM ('created', 'submitted', 'closed');
 
 CREATE TABLE IF NOT EXISTS my_user(
     id SERIAL PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS hotel(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    city_id INT REFERENCES city (id)
+    city_id INT REFERENCES city (id) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tag_hotel(
