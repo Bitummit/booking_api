@@ -28,6 +28,17 @@ type (
 		City string 	`json:"city"`
 		Tags []string	`json:"tags"`
 	}
+
+	RegistrationRequest struct {
+		Username string 	`json:"username"`
+		Password string 	`json:"password"`
+		Email string 		`json:"email"`
+		FirstName string	`json:"first_name"`
+		LastName string	`json:"last_name"`
+	}
+	RegistrationResponse struct {
+		Token string `json:"access_token"`
+	}
 )
 
 func ErrorResponse(msg string) Response {

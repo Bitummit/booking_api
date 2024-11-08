@@ -57,4 +57,15 @@ type (
 		CityId string 		`json:"city_id"`
 		Tagid int64 		`json:"tag_id"`
 	}
+
+	User struct {
+		Id int64
+		Username string
+		FirstName string
+		LastName string
+		Birthday time.Time
+		Email string
+		Password string
+		Role string
+	}
 )

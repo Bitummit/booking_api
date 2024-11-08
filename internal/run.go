@@ -32,10 +32,15 @@ func Run() {
 
 	wg.Add(1)
 	log.Info("Starting http server")
-	server := rest.New(cfg, log, storage)
+	server, err := rest.New(cfg, log, storage)
+	if err != nil {
+		log.Error("starting server: ", logger.Err(err))
+		storage.DB.Close()
+		return
+	}
 	server.Start(ctx, wg)
 
-	<- ctx.Done()
+	<-ctx.Done()
 	wg.Wait()
 	storage.DB.Close()
 }

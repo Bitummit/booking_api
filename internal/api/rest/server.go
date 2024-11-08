@@ -10,6 +10,7 @@ import (
 	"github.com/Bitummit/booking_api/internal/middlewares"
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/internal/service"
+	authclient "github.com/Bitummit/booking_api/internal/service/authClient"
 	"github.com/Bitummit/booking_api/pkg/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -20,6 +21,7 @@ type (
 		Cfg *config.Config
 		Log *slog.Logger
 		HotelService HotelService
+		AuthService *authclient.Client
 		Router chi.Router
 	}
 
@@ -34,15 +36,22 @@ type (
 	}
 )
 
-func New(cfg *config.Config, log *slog.Logger, storage service.HotelStorage) *HTTPServer{
+func New(cfg *config.Config, log *slog.Logger, storage service.HotelStorage) (*HTTPServer, error){
 	router := chi.NewRouter()
 	hotelService := service.New(storage)
+
+	auth, err := authclient.New(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
 	return &HTTPServer{
 		Cfg: cfg,
 		Log: log,
 		HotelService: hotelService,
+		AuthService: auth,
 		Router: router,
-	}
+	}, nil
 }
 
 func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
@@ -67,7 +76,8 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 			r.Delete("/{id}", s.DeleteCityHandler)
 		})
 	})
-	s.Router.Post("/hotel", s.CreateHotelHandler)
+	s.Router.Post("/hotel", s.CreateHotelHandler) // manager
+	s.Router.Post("/signup", s.RegistrationHandler)
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{

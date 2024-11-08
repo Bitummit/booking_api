@@ -13,12 +13,17 @@ import (
 type Config struct {
 	Env string `yaml:"env" env-default:"dev"`
 	HttpServer `yaml:"http_server"`
+	GrpcServer `yaml:"grpc_auth_server"`
 }
 
 type HttpServer struct {
 	Address string `yaml:"address" env-default:"localhost:8000"`
 	Timeout time.Duration `yaml:"timeout" env-default:"5s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+type GrpcServer struct {
+	GrpcAuthAddress string `yaml:"auth_address" env-default:"localhost:8000"`
 }
 
 func NewConfig() *Config {
