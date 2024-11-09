@@ -39,6 +39,14 @@ type (
 	RegistrationResponse struct {
 		Token string `json:"access_token"`
 	}
+
+	LoginRequest struct {
+		Username string 	`json:"username"`
+		Password string 	`json:"password"`
+	}
+	LoginResponse struct {
+		Token string `json:"access_token"`
+	}
 )
 
 func ErrorResponse(msg string) Response {

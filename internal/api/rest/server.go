@@ -78,6 +78,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	})
 	s.Router.Post("/hotel", s.CreateHotelHandler) // manager
 	s.Router.Post("/signup", s.RegistrationHandler)
+	s.Router.Post("/login", s.LoginHandler)
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{

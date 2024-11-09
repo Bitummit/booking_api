@@ -50,3 +50,16 @@ func (c *Client) Registration(user models.User) (string, error) {
 	
 	return res.GetToken(), nil
 }
+
+func (c *Client) Login(user models.User) (string, error) {
+	request := &auth.LoginRequest {
+		Username: user.Username,
+		Password: user.Password,
+	}
+	res, err := c.Client.Login(context.Background(), request)
+	if err != nil {
+		return "", fmt.Errorf("auth service error: %w", err)
+	}
+	
+	return res.GetToken(), nil
+}
