@@ -3,6 +3,7 @@ package rest
 import (
 	"net/http"
 
+	"github.com/Bitummit/booking_api/internal/api"
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/pkg/logger"
 	"github.com/go-chi/render"
@@ -10,18 +11,18 @@ import (
 )
 
 func (s *HTTPServer) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
-	var req RegistrationRequest
+	var req api.RegistrationRequest
 	err := render.DecodeJSON(r.Body, &req)
 	if err != nil {
 		s.Log.Error("auth: decoding request", logger.Err(err))
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse("bad request"))
+		render.JSON(w, r, api.ErrorResponse("bad request"))
 		return
 	}
 	if err := validator.New().Struct(req); err != nil {
 		err = err.(validator.ValidationErrors)
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse(err.Error()))
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -36,29 +37,29 @@ func (s *HTTPServer) RegistrationHandler(w http.ResponseWriter, r *http.Request)
 	token, err := s.AuthService.Registration(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse(err.Error()))
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	render.JSON(w, r, RegistrationResponse{
+	render.JSON(w, r, api.RegistrationResponse{
 		Token: token,
 	})
 }
 
 func (s *HTTPServer) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var req LoginRequest
+	var req api.LoginRequest
 	err := render.DecodeJSON(r.Body, &req)
 	if err != nil {
 		s.Log.Error("auth: decoding request", logger.Err(err))
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse("bad request"))
+		render.JSON(w, r, api.ErrorResponse("bad request"))
 		return
 	}
 	if err := validator.New().Struct(req); err != nil {
 		err = err.(validator.ValidationErrors)
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse(err.Error()))
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -70,12 +71,12 @@ func (s *HTTPServer) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := s.AuthService.Login(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse(err.Error()))
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	render.JSON(w, r, RegistrationResponse{
+	render.JSON(w, r, api.RegistrationResponse{
 		Token: token,
 	})
 }

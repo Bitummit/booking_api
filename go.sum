@@ -1,5 +1,7 @@
 github.com/Bitummit/booking_auth v0.0.0-20241108084818-031b505f0f52 h1:RLK7K9jtmMqjeElzg6YZGVdYxH7l5crkGCfVlSqOLcY=
 github.com/Bitummit/booking_auth v0.0.0-20241108084818-031b505f0f52/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
+github.com/Bitummit/booking_auth v0.0.0-20241115085739-d57d63db0028 h1:Q6K9JMnSwfaXG5LtYXW6IVhXaXhgECUQk17rNfGCU7I=
+github.com/Bitummit/booking_auth v0.0.0-20241115085739-d57d63db0028/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=

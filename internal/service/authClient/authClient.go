@@ -63,3 +63,15 @@ func (c *Client) Login(user models.User) (string, error) {
 	
 	return res.GetToken(), nil
 }
+
+func (c *Client) CheckIsADmin(token string) error {
+	request := &auth.CheckTokenRequest {
+		Token: token,
+	}
+	_, err := c.Client.IsAdmin(context.Background(), request)
+	if err != nil {
+		return fmt.Errorf("auth service error: %w", err)
+	}
+	
+	return nil
+}

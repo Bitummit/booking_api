@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Bitummit/booking_api/internal/api"
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/Bitummit/booking_api/internal/storage/postgresql"
 	"github.com/Bitummit/booking_api/pkg/logger"
@@ -12,7 +13,7 @@ import (
 )
 
 func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) {
-	var req CreateHotelRequest
+	var req api.CreateHotelRequest
 	// Name string 	`json:"name"`
 	// 	Desc string 	`json:"desc,omitempty"`
 	// 	City string 	`json:"city"`
@@ -21,14 +22,14 @@ func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		s.Log.Error("hotel: decoding request", logger.Err(err))
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse("bad request"))
+		render.JSON(w, r, api.ErrorResponse("bad request"))
 		return
 	}
 
 	if err := validator.New().Struct(req); err != nil {
 		err = err.(validator.ValidationErrors)
 		w.WriteHeader(http.StatusBadRequest)
-		render.JSON(w, r, ErrorResponse(err.Error()))
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
 		return
 	}
 
@@ -41,28 +42,28 @@ func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) 
 		s.Log.Error("hotel:", logger.Err(err))
 		w.WriteHeader(http.StatusBadRequest)
 		if errors.Is(err, postgresql.ErrorTagNotExists) {
-			render.JSON(w, r, ErrorResponse("no such tag"))
+			render.JSON(w, r, api.ErrorResponse("no such tag"))
 			return
 		}
 		if errors.Is(err, postgresql.ErrorCityNotExists) {
-			render.JSON(w, r, ErrorResponse("no such city"))
+			render.JSON(w, r, api.ErrorResponse("no such city"))
 			return
 		}
 		if errors.Is(err, postgresql.ErrorExists) {
-			render.JSON(w, r, ErrorResponse("hotel with this name exists!"))
+			render.JSON(w, r, api.ErrorResponse("hotel with this name exists!"))
 			return
 		}
 		if errors.Is(err, postgresql.ErrorNotExists) || errors.Is(err, postgresql.ErrorInsertion){
-			render.JSON(w, r, ErrorResponse("bad request"))
+			render.JSON(w, r, api.ErrorResponse("bad request"))
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
-		render.JSON(w, r, ErrorResponse("internal error"))
+		render.JSON(w, r, api.ErrorResponse("internal error"))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	res := CreationResponse{
+	res := api.CreationResponse{
 		Id: hotelID,
 	}
 	w.WriteHeader(http.StatusOK)

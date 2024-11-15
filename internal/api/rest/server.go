@@ -63,7 +63,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	s.Router.Use(middlewares.SetJSONContentType)
 
 	s.Router.Route("/admin", func(r chi.Router) {
-		r.Use(middlewares.IsAdmin)
+		r.Use(middlewares.IsAdmin(s.Cfg))
 
 		r.Route("/tag", func(r chi.Router) {
 			r.Post("/", s.CreateTagHandler)
