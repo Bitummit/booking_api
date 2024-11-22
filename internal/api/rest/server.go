@@ -75,6 +75,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 			r.Get("/", s.ListCityHandler)
 			r.Delete("/{id}", s.DeleteCityHandler)
 		})
+		r.Post("/role/update", s.UpdateUserRole)
 	})
 	s.Router.Post("/hotel", s.CreateHotelHandler) // manager
 	s.Router.Post("/signup", s.RegistrationHandler)

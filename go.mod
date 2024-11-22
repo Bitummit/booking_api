@@ -3,7 +3,7 @@ module github.com/Bitummit/booking_api
 go 1.23.1
 
 require (
-	github.com/Bitummit/booking_auth v0.0.0-20241115085739-d57d63db0028 // indirect
+	github.com/Bitummit/booking_auth v0.0.0-20241122102117-ab37dc1eac8b // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect

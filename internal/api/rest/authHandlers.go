@@ -80,3 +80,18 @@ func (s *HTTPServer) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Token: token,
 	})
 }
+
+func (s *HTTPServer) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
+	var req api.UpdateUserRoleRequest
+	render.DecodeJSON(r.Body, &req)
+	// authServie
+	if err := s.AuthService.UpdateUserRole(req.Role, req.Username); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, api.Response{
+		Status: "success",
+	})
+}

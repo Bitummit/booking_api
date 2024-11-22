@@ -47,6 +47,11 @@ type (
 	LoginResponse struct {
 		Token string `json:"access_token"`
 	}
+
+	UpdateUserRoleRequest struct {
+		Username string 	`json:"username"`
+		Role string 	`json:"role"`
+	}
 )
 
 func ErrorResponse(msg string) Response {

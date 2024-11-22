@@ -75,3 +75,16 @@ func (c *Client) CheckIsADmin(token string) error {
 	
 	return nil
 }
+
+func (c *Client) UpdateUserRole(role, username string) error {
+	request := &auth.UpdateUserRoleRequest {
+		Username: username,
+		Role: role,
+	}
+	_, err := c.Client.UpdateUserRole(context.Background(), request)
+	if err != nil {
+		return fmt.Errorf("auth service error: %w", err)
+	}
+	
+	return nil
+}

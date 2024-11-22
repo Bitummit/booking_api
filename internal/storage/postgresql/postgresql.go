@@ -244,3 +244,6 @@ func (s *Storage) CreateTagHotel(ctx context.Context, tagName string, hotelID in
 	return nil
 }
 
+func (s *Storage) UpdateUserRole(ctx context.Context, username string) error {
+	return nil
+}
