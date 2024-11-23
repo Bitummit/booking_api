@@ -77,9 +77,9 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 		})
 		r.Post("/role/update", s.UpdateUserRole)
 	})
-	s.Router.Post("/hotel", s.CreateHotelHandler) // manager
-	s.Router.Post("/signup", s.RegistrationHandler)
-	s.Router.Post("/login", s.LoginHandler)
+	s.Router.Post("/hotel", s.CreateHotelHandler) // manager role or admin
+	s.Router.Post("/signup", s.RegistrationHandler) // all
+	s.Router.Post("/login", s.LoginHandler) // all
 
 	errCh := make(chan error, 1)
 	httpServer := &http.Server{
@@ -110,18 +110,19 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 
 
 // User:
-// 	List hotels (add filters)
+// 	List hotels (all, add filters, pagination)
 // 	Get hotel -> show list room_categories
 // 	Create booking (auth)
 
 // Admin:
-// 	Update user role (give role manager) (auth_service)
+// 	Update user role (give role manager) (auth_service) -> done
 //	List, Create(done), delete tags -> 01.11.2024
 // 	List, Create(done), delete city -> 01.11.2024
 
 // Manager:
-//	List own hotels, get hotel admin
+//	List own hotels
+// 	Get hotel
 //	Create, update, delete categories
 //	Create, delete room
 // 	Update hotel
-//	Create hotel
+//	Create hotel -> done
