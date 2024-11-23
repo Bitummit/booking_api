@@ -16,5 +16,5 @@ const (
 	CreateTagHotelStmt = "INSERT INTO tag_hotel(hotel_id, tag_id) VALUES(@hotel_id, (SELECT id FROM tag WHERE name=@tag_name LIMIT 1));"
 	CheckHotelNameUniqueStmt = "SELECT id FROM hotel WHERE name=@name"
 	CreateHotelStmt = "INSERT INTO hotel(name, description, city_id) VALUES(@name, @desc, (SELECT id FROM city WHERE name=@city_name LIMIT 1)) RETURNING id;"
-	GetOwnedHotelsStmt = "SELECT id, name, description, city_id FROM hotel WHERE "
+	GetOwnedHotelsStmt = "SELECT id, name, description, city_id FROM hotel WHERE manager_id=@user_id"
 )

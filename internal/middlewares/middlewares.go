@@ -34,7 +34,7 @@ func IsAdmin(cfg *config.Config) func(http.Handler) http.Handler {
 			}
 			if err = authClient.CheckIsADmin(token); err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				render.JSON(w, r, api.ErrorResponse(err.Error()))
+				render.JSON(w, r, api.ErrorResponse("no enough permission"))
 				return
 			} else {
 				next.ServeHTTP(w, r)
