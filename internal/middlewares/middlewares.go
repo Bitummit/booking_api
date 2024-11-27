@@ -1,12 +1,15 @@
 package middlewares
 
 import (
+	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/Bitummit/booking_api/internal/api"
+	"github.com/Bitummit/booking_api/internal/models"
 	authclient "github.com/Bitummit/booking_api/internal/service/authClient"
-	"github.com/go-chi/render"
 	"github.com/Bitummit/booking_api/pkg/config"
+	"github.com/go-chi/render"
 )
 
 func SetJSONContentType(next http.Handler) http.Handler {
@@ -39,6 +42,42 @@ func IsAdmin(cfg *config.Config) func(http.Handler) http.Handler {
 			} else {
 				next.ServeHTTP(w, r)
 			}
+		})
+	}
+}
+
+func GetUser(cfg *config.Config, log *slog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler{
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token := r.Header.Get("Authorization")
+
+			authClient, err := authclient.New(cfg)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				render.JSON(w, r, api.ErrorResponse("internal grpc error"))
+				return
+			}
+			resp, err := authClient.GetUser(token)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				render.JSON(w, r, api.ErrorResponse("internal grpc error"))
+				return
+			}
+			
+			user := models.User{
+				Id: resp.Id,
+				Username: resp.Username,
+				FirstName: resp.FirstName,
+				LastName: resp.LastName,
+				Email: resp.Email,
+			}
+
+			log.Info("Checking user", slog.Attr{
+				Key: "user",
+				Value: slog.StringValue(user.Username),
+			})
+			r = r.WithContext(context.WithValue(r.Context(), "user", user))
+			next.ServeHTTP(w, r)
 		})
 	}
 }

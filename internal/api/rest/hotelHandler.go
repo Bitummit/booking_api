@@ -70,3 +70,9 @@ func (s *HTTPServer) CreateHotelHandler(w http.ResponseWriter, r *http.Request) 
 	render.JSON(w, r, res)
 
 }
+
+func (s *HTTPServer) ListOwnHotels(w http.ResponseWriter, r *http.Request) {
+	// get manager_id(user)
+	// get hotels
+	//return list
+}

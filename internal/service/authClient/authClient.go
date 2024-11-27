@@ -88,3 +88,22 @@ func (c *Client) UpdateUserRole(role, username string) error {
 	
 	return nil
 }
+
+func (c *Client) GetUser(token string) (*models.User, error) {
+	req := &auth.GetUserRequest {
+		Token: token,
+	}
+	resp, err := c.Client.GetUser(context.Background(), req)
+	if err != nil {
+		return nil,fmt.Errorf("auth service error: %w", err)
+	}
+	
+	user := models.User{
+		Id: resp.Id,
+		Username: resp.Username,
+		FirstName: resp.FirstName,
+		LastName: resp.LastName,
+		Email: resp.Email,
+	}
+	return &user, nil
+}

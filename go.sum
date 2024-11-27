@@ -4,6 +4,10 @@ github.com/Bitummit/booking_auth v0.0.0-20241115085739-d57d63db0028 h1:Q6K9JMnSw
 github.com/Bitummit/booking_auth v0.0.0-20241115085739-d57d63db0028/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
 github.com/Bitummit/booking_auth v0.0.0-20241122102117-ab37dc1eac8b h1:sDjPpgQsfxDORh7jrx8alKQVVM5p15N+SAuM4ClZGQA=
 github.com/Bitummit/booking_auth v0.0.0-20241122102117-ab37dc1eac8b/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
+github.com/Bitummit/booking_auth v0.0.0-20241123092048-f55a490a88a5 h1:1P63IIjt8eM2kEsJ2lCPP4tzoaaF8RZegse8Y+QCJpY=
+github.com/Bitummit/booking_auth v0.0.0-20241123092048-f55a490a88a5/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
+github.com/Bitummit/booking_auth v0.0.0-20241123100011-ad94b3915e42 h1:EGeWQArlZKpDWskfYP9pBcXYXKaNHWJRJy6uKGmVOQQ=
+github.com/Bitummit/booking_auth v0.0.0-20241123100011-ad94b3915e42/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
@@ -21,6 +25,8 @@ github.com/go-playground/universal-translator v0.18.1 h1:Bcnm0ZwsGyWbCzImXv+pAJn
 github.com/go-playground/universal-translator v0.18.1/go.mod h1:xekY+UJKNuX9WP91TpwSH2VMlDf28Uj24BCp08ZFTUY=
 github.com/go-playground/validator/v10 v10.22.1 h1:40JcKH+bBNGFczGuoBYgX4I6m/i27HYW8P9FDk5PbgA=
 github.com/go-playground/validator/v10 v10.22.1/go.mod h1:dbuPbCMFw/DrkbEynArYaCwl3amGuJotoKCe95atGMM=
+github.com/go-playground/validator/v10 v10.23.0 h1:/PwmTwZhS0dPkav3cdK9kV1FsAmrL8sThn8IHr/sO+o=
+github.com/go-playground/validator/v10 v10.23.0/go.mod h1:dbuPbCMFw/DrkbEynArYaCwl3amGuJotoKCe95atGMM=
 github.com/ilyakaznacheev/cleanenv v1.5.0 h1:0VNZXggJE2OYdXE87bfSSwGxeiGt9moSR2lOrsHHvr4=
 github.com/ilyakaznacheev/cleanenv v1.5.0/go.mod h1:a5aDzaJrLCQZsazHol1w8InnDcOX0OColm64SlIi6gk=
 github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=

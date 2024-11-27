@@ -3,7 +3,7 @@ module github.com/Bitummit/booking_api
 go 1.23.1
 
 require (
-	github.com/Bitummit/booking_auth v0.0.0-20241122102117-ab37dc1eac8b // indirect
+	github.com/Bitummit/booking_auth v0.0.0-20241123100011-ad94b3915e42 // indirect
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
@@ -11,7 +11,7 @@ require (
 	github.com/go-chi/render v1.0.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.22.1 // indirect
+	github.com/go-playground/validator/v10 v10.23.0 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

@@ -28,6 +28,12 @@ type (
 		City string 	`json:"city"`
 		Tags []string	`json:"tags"`
 	}
+	ListHotelsResponse struct {
+		Name string 	`json:"name"`
+		Desc string 	`json:"desc,omitempty"`
+		City string 	`json:"city"`
+		Tags []string	`json:"tags"`
+	}
 
 	RegistrationRequest struct {
 		Username string 	`json:"username"`

@@ -61,23 +61,24 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.URLFormat)
 	s.Router.Use(middlewares.SetJSONContentType)
+	s.Router.Use(middlewares.GetUser(s.Cfg, s.Log))
 
 	s.Router.Route("/admin", func(r chi.Router) {
 		r.Use(middlewares.IsAdmin(s.Cfg))
 
-		r.Route("/tag", func(r chi.Router) {
+		r.Route("/tags", func(r chi.Router) {
 			r.Post("/", s.CreateTagHandler)
 			r.Get("/", s.ListTagsHandler)
 			r.Delete("/{id}", s.DeleteTagHandler)
 		})
-		r.Route("/city", func(r chi.Router) {
+		r.Route("/cities", func(r chi.Router) {
 			r.Post("/", s.CreateCityHandler)
 			r.Get("/", s.ListCityHandler)
 			r.Delete("/{id}", s.DeleteCityHandler)
 		})
 		r.Post("/role/update", s.UpdateUserRole)
 	})
-	s.Router.Post("/hotel", s.CreateHotelHandler) // manager role or admin
+	s.Router.Post("/hotels", s.CreateHotelHandler) // manager role or admin
 	s.Router.Post("/signup", s.RegistrationHandler) // all
 	s.Router.Post("/login", s.LoginHandler) // all
 
