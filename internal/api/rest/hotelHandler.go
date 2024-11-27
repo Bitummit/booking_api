@@ -75,4 +75,15 @@ func (s *HTTPServer) ListOwnHotels(w http.ResponseWriter, r *http.Request) {
 	// get manager_id(user)
 	// get hotels
 	//return list
+	hotels, err := s.HotelService.ListOwnHotels(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		render.JSON(w, r, api.ErrorResponse(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.JSON(w, r, api.ListHotelsResponse{
+		Hotels: hotels,
+	})
 }

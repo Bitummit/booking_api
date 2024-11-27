@@ -247,3 +247,41 @@ func (s *Storage) CreateTagHotel(ctx context.Context, tagName string, hotelID in
 func (s *Storage) UpdateUserRole(ctx context.Context, username string) error {
 	return nil
 }
+
+func (s *Storage) GetHotelsByManager(ctx context.Context, user_id int64) ([]*models.Hotel, error) {
+	stmt := GetOwnedHotelsStmt
+	var hotels []*models.Hotel
+	hotelsMap := make(map[int64]*models.Hotel)
+	args := pgx.NamedArgs{
+		"user_id": user_id,
+	}
+
+	rows, err := s.DB.Query(ctx, stmt, args)
+	if err != nil {
+		return nil, fmt.Errorf("fetching data: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var hotel models.Hotel
+		var tag models.Tag
+		var city models.City
+
+		err = rows.Scan(&hotel.Id, &hotel.Name, &hotel.Desc, &city.Name, &tag.Name)
+		if err != nil {
+			return nil, fmt.Errorf("fetching data: %w", err)
+		}
+
+		if _, exists := hotelsMap[hotel.Id]; !exists {
+			hotelsMap[hotel.Id] = &hotel
+		}
+		hotelsMap[hotel.Id].Tags = append(hotelsMap[hotel.Id].Tags, tag)
+		fmt.Println(hotelsMap[hotel.Id])
+
+	}
+	for _, hotel := range hotelsMap{
+		hotels = append(hotels, hotel)
+	}
+
+	return hotels, nil
+}

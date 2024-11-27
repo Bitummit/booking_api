@@ -33,6 +33,7 @@ type (
 		ListCities(ctx context.Context) ([]models.City, error)
 		DeleteCity(ctx context.Context, id int64) error
 		CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error)
+		ListOwnHotels(ctx context.Context) ([]*models.Hotel, error)
 	}
 )
 
@@ -79,6 +80,7 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 		r.Post("/role/update", s.UpdateUserRole)
 	})
 	s.Router.Post("/hotels", s.CreateHotelHandler) // manager role or admin
+	s.Router.Get("/hotels", s.ListOwnHotels) // manager role
 	s.Router.Post("/signup", s.RegistrationHandler) // all
 	s.Router.Post("/login", s.LoginHandler) // all
 

@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"time"
+
+)
 
 type (
 	BaseModel struct {
@@ -23,6 +26,7 @@ type (
 		Name string 	`json:"name"`
 		Desc string 	`json:"desc"`
 		CityId int64 	`json:"city_id"`
+		Tags []Tag 	`json:"tags"`
 	}
 
 	RoomCategory struct {

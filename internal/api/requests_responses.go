@@ -29,10 +29,7 @@ type (
 		Tags []string	`json:"tags"`
 	}
 	ListHotelsResponse struct {
-		Name string 	`json:"name"`
-		Desc string 	`json:"desc,omitempty"`
-		City string 	`json:"city"`
-		Tags []string	`json:"tags"`
+		Hotels []*models.Hotel `json: "hotels"`
 	}
 
 	RegistrationRequest struct {

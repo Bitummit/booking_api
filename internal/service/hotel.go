@@ -21,6 +21,7 @@ type (
 		DeleteCity(ctx context.Context, id int64) error
 		CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error)
 		UpdateUserRole(ctx context.Context, username string) error
+		GetHotelsByManager(ctx context.Context, user_id int64) ([]*models.Hotel, error)
 	}
 )
 
@@ -92,4 +93,13 @@ func (s *HotelService) CreateHotel(ctx context.Context, hotel models.Hotel, city
 		return hotelID, fmt.Errorf("creating hotel: %w", err)
 	}
 	return hotelID, nil
+}
+
+func (s *HotelService) ListOwnHotels(ctx context.Context,) ([]*models.Hotel, error) {
+	user := ctx.Value("user").(models.User)
+	hotels, err := s.Storage.GetHotelsByManager(ctx, user.Id)
+	if err != nil {
+		return nil, fmt.Errorf("creating hotel: %w", err)
+	}
+	return hotels, nil	
 }
