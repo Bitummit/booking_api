@@ -298,7 +298,6 @@ func packHotels(rows pgx.Rows) ([]*models.Hotel, error){
 		var hotelDesc sql.NullString
 		var city models.City
 
-
 		err := rows.Scan(&hotel.Id, &hotel.Name, &hotelDesc, &city.Name, &tagName)
 		if err != nil {
 			return nil, fmt.Errorf("scanning row: %w", err)
@@ -310,9 +309,6 @@ func packHotels(rows pgx.Rows) ([]*models.Hotel, error){
 		}
 		if tagName.Valid {
 			tag.Name = tagName.String
-			// if err != nil {
-			// 	return nil, fmt.Errorf("error getting tag value: %w", err)
-			// }
 			hotelsMap[hotel.Id].Tags = append(hotelsMap[hotel.Id].Tags, tag)
 		}
 		hotelsMap[hotel.Id].City = city

@@ -113,23 +113,25 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 
 
 // User:
-// 	List hotels (all, add filters, pagination)
+// 	List hotels -> done
 // 	Get hotel -> show list room_categories
 // 	Create booking (auth)
+// 	List booking
+// 	Hotels filter and pagination
 
-// Admin:
+// Admin (DONE):
 // 	Update user role (give role manager) (auth_service) -> done
 //	List, Create, delete tags -> done
 // 	List, Create, delete city -> done
 
 // Manager:
 //	List own hotels -> Done
-// 	Get hotel
+//	Create hotel -> done
+// 	Get hotel - NEXT
 //	Create, update, delete categories
 //	Create, delete room
 // 	Update hotel
-//	Create hotel -> done
 
-// Mailmicroservice: (Kafka)
+// Mailmicroservice: (Kafka)*
 // Send email with booking info
 // Send email on registration?
