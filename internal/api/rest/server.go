@@ -33,7 +33,7 @@ type (
 		ListCities(ctx context.Context) ([]models.City, error)
 		DeleteCity(ctx context.Context, id int64) error
 		CreateHotel(ctx context.Context, hotel models.Hotel, cityName string, tags []string) (int64, error)
-		ListOwnHotels(ctx context.Context) ([]*models.Hotel, error)
+		ListHotels(ctx context.Context) ([]*models.Hotel, error)
 	}
 )
 
@@ -119,13 +119,17 @@ func (s *HTTPServer) Start(ctx context.Context, wg *sync.WaitGroup) error {
 
 // Admin:
 // 	Update user role (give role manager) (auth_service) -> done
-//	List, Create(done), delete tags -> 01.11.2024
-// 	List, Create(done), delete city -> 01.11.2024
+//	List, Create, delete tags -> done
+// 	List, Create, delete city -> done
 
 // Manager:
-//	List own hotels
+//	List own hotels -> Done
 // 	Get hotel
 //	Create, update, delete categories
 //	Create, delete room
 // 	Update hotel
 //	Create hotel -> done
+
+// Mailmicroservice: (Kafka)
+// Send email with booking info
+// Send email on registration?

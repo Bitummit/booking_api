@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Bitummit/booking_api/internal/api"
-	"github.com/Bitummit/booking_api/internal/models"
 	authclient "github.com/Bitummit/booking_api/internal/service/authClient"
 	"github.com/Bitummit/booking_api/pkg/config"
 	"github.com/go-chi/render"
@@ -57,19 +56,11 @@ func GetUser(cfg *config.Config, log *slog.Logger) func(http.Handler) http.Handl
 				render.JSON(w, r, api.ErrorResponse("internal grpc error"))
 				return
 			}
-			resp, err := authClient.GetUser(token)
+			user, err := authClient.GetUser(token)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				render.JSON(w, r, api.ErrorResponse("internal grpc error"))
 				return
-			}
-			
-			user := models.User{
-				Id: resp.Id,
-				Username: resp.Username,
-				FirstName: resp.FirstName,
-				LastName: resp.LastName,
-				Email: resp.Email,
 			}
 
 			log.Info("Checking user", slog.Attr{

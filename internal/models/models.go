@@ -25,7 +25,7 @@ type (
 		Id int64 		`json:"id"`
 		Name string 	`json:"name"`
 		Desc string 	`json:"desc"`
-		CityId int64 	`json:"city_id"`
+		City City 		`json:"city"`
 		Tags []Tag 	`json:"tags"`
 	}
 

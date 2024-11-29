@@ -16,5 +16,6 @@ const (
 	CreateTagHotelStmt = "INSERT INTO tag_hotel(hotel_id, tag_id) VALUES(@hotel_id, (SELECT id FROM tag WHERE name=@tag_name LIMIT 1));"
 	CheckHotelNameUniqueStmt = "SELECT id FROM hotel WHERE name=@name"
 	CreateHotelStmt = "INSERT INTO hotel(name, description, city_id) VALUES(@name, @desc, (SELECT id FROM city WHERE name=@city_name LIMIT 1)) RETURNING id;"
-	GetOwnedHotelsStmt = "select h.id, h.name, h.description, c.name, t.name from hotel as h left join city as c on h.city_id=c.id inner join tag_hotel as th on th.hotel_id=h.id left join tag as t on th.tag_id=t.id where h.manager_id=@user_id; "
+	GetOwnedHotelsStmt = "select h.id, h.name, h.description, c.name, t.name from hotel as h left join city as c on h.city_id=c.id left join tag_hotel as th on th.hotel_id=h.id left join tag as t on th.tag_id=t.id where h.manager_id=@user_id; "
+	GetAllHotelsStmt = "select h.id, h.name, h.description, c.name, t.name from hotel as h left join city as c on h.city_id=c.id left join tag_hotel as th on th.hotel_id=h.id left join tag as t on th.tag_id=t.id"
 )

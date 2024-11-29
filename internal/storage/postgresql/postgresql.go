@@ -250,8 +250,6 @@ func (s *Storage) UpdateUserRole(ctx context.Context, username string) error {
 
 func (s *Storage) GetHotelsByManager(ctx context.Context, user_id int64) ([]*models.Hotel, error) {
 	stmt := GetOwnedHotelsStmt
-	var hotels []*models.Hotel
-	hotelsMap := make(map[int64]*models.Hotel)
 	args := pgx.NamedArgs{
 		"user_id": user_id,
 	}
@@ -262,21 +260,52 @@ func (s *Storage) GetHotelsByManager(ctx context.Context, user_id int64) ([]*mod
 	}
 	defer rows.Close()
 
+	hotels, err := packHotels(rows)
+	if err != nil {
+		return nil, fmt.Errorf("parsing data: %w", err)
+	}
+	fmt.Println("GOT MANGER")
+	return hotels, nil
+}
+
+func (s *Storage) GetAllHotes(ctx context.Context) ([]*models.Hotel, error) {
+	stmt := GetAllHotelsStmt
+
+	rows, err := s.DB.Query(ctx, stmt)
+	if err != nil {
+		return nil, fmt.Errorf("fetching data: %w", err)
+	}
+	defer rows.Close()
+
+	hotels, err := packHotels(rows)
+	if err != nil {
+		return nil, fmt.Errorf("parsing data: %w", err)
+	}
+	
+	return hotels, nil
+}
+
+
+func packHotels(rows pgx.Rows) ([]*models.Hotel, error){
+	var hotels []*models.Hotel
+	hotelsMap := make(map[int64]*models.Hotel)
+	
 	for rows.Next() {
 		var hotel models.Hotel
 		var tag models.Tag
 		var city models.City
 
-		err = rows.Scan(&hotel.Id, &hotel.Name, &hotel.Desc, &city.Name, &tag.Name)
+
+		err := rows.Scan(&hotel.Id, &hotel.Name, &hotel.Desc, &city.Name, &tag.Name)
 		if err != nil {
-			return nil, fmt.Errorf("fetching data: %w", err)
+			return nil, fmt.Errorf("scanning row: %w", err)
 		}
 
 		if _, exists := hotelsMap[hotel.Id]; !exists {
 			hotelsMap[hotel.Id] = &hotel
 		}
 		hotelsMap[hotel.Id].Tags = append(hotelsMap[hotel.Id].Tags, tag)
-		fmt.Println(hotelsMap[hotel.Id])
+		hotelsMap[hotel.Id].City = city
 
 	}
 	for _, hotel := range hotelsMap{

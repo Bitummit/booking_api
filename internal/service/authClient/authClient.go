@@ -104,6 +104,7 @@ func (c *Client) GetUser(token string) (*models.User, error) {
 		FirstName: resp.FirstName,
 		LastName: resp.LastName,
 		Email: resp.Email,
+		Role: resp.Role,
 	}
 	return &user, nil
 }

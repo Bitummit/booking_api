@@ -8,6 +8,10 @@ github.com/Bitummit/booking_auth v0.0.0-20241123092048-f55a490a88a5 h1:1P63IIjt8
 github.com/Bitummit/booking_auth v0.0.0-20241123092048-f55a490a88a5/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
 github.com/Bitummit/booking_auth v0.0.0-20241123100011-ad94b3915e42 h1:EGeWQArlZKpDWskfYP9pBcXYXKaNHWJRJy6uKGmVOQQ=
 github.com/Bitummit/booking_auth v0.0.0-20241123100011-ad94b3915e42/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
+github.com/Bitummit/booking_auth v0.0.0-20241127161223-56f27cc8cec3 h1:qTIIA9AsaPlFoa56amqqGygFYw3YKUm155Cfc86WH5Y=
+github.com/Bitummit/booking_auth v0.0.0-20241127161223-56f27cc8cec3/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
+github.com/Bitummit/booking_auth v0.0.0-20241129123852-29e96f8402be h1:e1k0v8VZBapjvwvqfVjs3EZHsouzNSXhe9XwPpxB1DE=
+github.com/Bitummit/booking_auth v0.0.0-20241129123852-29e96f8402be/go.mod h1:6kpzIQe8mWUqUM1EEEq/U4XICp0Zukk7p+fj8JcS+Mk=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
