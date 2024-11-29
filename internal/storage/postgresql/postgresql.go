@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"time"
+	"database/sql"
 
 	"github.com/Bitummit/booking_api/internal/models"
 	"github.com/jackc/pgx/v5"
@@ -293,18 +294,27 @@ func packHotels(rows pgx.Rows) ([]*models.Hotel, error){
 	for rows.Next() {
 		var hotel models.Hotel
 		var tag models.Tag
+		var tagName sql.NullString
+		var hotelDesc sql.NullString
 		var city models.City
 
 
-		err := rows.Scan(&hotel.Id, &hotel.Name, &hotel.Desc, &city.Name, &tag.Name)
+		err := rows.Scan(&hotel.Id, &hotel.Name, &hotelDesc, &city.Name, &tagName)
 		if err != nil {
 			return nil, fmt.Errorf("scanning row: %w", err)
 		}
+		hotel.Desc = hotelDesc.String
 
 		if _, exists := hotelsMap[hotel.Id]; !exists {
 			hotelsMap[hotel.Id] = &hotel
 		}
-		hotelsMap[hotel.Id].Tags = append(hotelsMap[hotel.Id].Tags, tag)
+		if tagName.Valid {
+			tag.Name = tagName.String
+			// if err != nil {
+			// 	return nil, fmt.Errorf("error getting tag value: %w", err)
+			// }
+			hotelsMap[hotel.Id].Tags = append(hotelsMap[hotel.Id].Tags, tag)
+		}
 		hotelsMap[hotel.Id].City = city
 
 	}
